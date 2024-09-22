@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
   console.log("Is logged in:", isLoggedIn);
 
   // List of public routes that don't require authentication
-  const publicRoutes = ["/login, /auth/callback"];
+  const publicRoutes = ["/login", "/auth/callback"];
 
   // Check if the requested path is a public route
   const isPublicRoute = publicRoutes.some((route) =>
