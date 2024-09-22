@@ -24,10 +24,13 @@ async function checkAuthStatus(request: NextRequest) {
         },
       }
     );
+    if (!response.ok) {
+      console.error(`Authentication API returned status ${response.status}`);
+      return false;
+    }
     // console.log("checkAuthStatus Response:", response);
     const data: AuthStatusResponse = await response.json();
     // console.log("checkAuthStatus Data:", data);
-
     if (!data.success && !data.isValid) {
       console.log("checkAuthStatus Session cookie deleted");
     }
