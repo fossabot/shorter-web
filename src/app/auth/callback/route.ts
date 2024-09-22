@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 type AuthResponse = {
   success: boolean;
@@ -54,14 +53,14 @@ export async function GET(request: NextRequest) {
 
   if (!code) {
     console.log("No code found. Redirecting to login...");
-    redirect('/login');
+    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_BASE_URL));
   }
 
   const result = await authenticateUser(code);
 
   if (result.success) {
-    redirect('/dashboard');
+    return NextResponse.redirect(new URL("/dashboard", process.env.NEXT_PUBLIC_BASE_URL));
   } else {
-    redirect('/login');
+    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_BASE_URL));
   }
 }
