@@ -1,6 +1,6 @@
-"use server"
-
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { NextRequest } from 'next/server';
 
 type AuthResponse = {
   success: boolean;
@@ -28,12 +28,15 @@ async function authenticateUser(code: string) {
     console.log("Authentication response:", data);
 
     if (data.success) {
-      // cookies().set('url_shortener_gh_session', data.url_shortener_gh_session, {
-      //   httpOnly: true,
-      //   secure: process.env.NODE_ENV === 'production',
-      //   sameSite: 'strict',
-      // });
-      console.log("Authentication successful. Redirecting to dashboard...");
+      console.log("Authentication successful. Setting cookie and redirecting to dashboard...");
+      
+      // Set the cookie
+      cookies().set('url_shortener_gh_session', data.url_shortener_gh_session, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
       return { success: true, message: "Authentication successful" };
     } else {
       console.log("Authentication failed. ", data.message);
@@ -45,12 +48,9 @@ async function authenticateUser(code: string) {
   }
 }
 
-export default async function Callback({
-  searchParams,
-}: {
-  searchParams: { code?: string };
-}) {
-  const code = searchParams.code || "";
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const code = searchParams.get('code') || "";
 
   if (!code) {
     console.log("No code found. Redirecting to login...");
