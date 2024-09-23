@@ -41,7 +41,7 @@ async function authenticateUser(code: string) {
       console.log("Authentication failed. ", data.message);
       return { success: false, message: data.message || "Authentication failed" };
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error during authentication:", error);
     return { success: false, message: "Authentication failed" };
   }
