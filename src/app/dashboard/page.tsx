@@ -15,10 +15,6 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold mb-4">Data Table</h1>
         <DataPanel />
       </div>
-
-      <div className="bg-white border border-gray-200 rounded-lg p-4 w-full">
-        <h1 className="text-xl font-semibold">Dashboard</h1>
-      </div>
     </div>
   );
 }

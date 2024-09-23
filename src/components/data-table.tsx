@@ -75,7 +75,7 @@ export function DataTable(props: DataTableProps) {
                       </Badge>
                     )
                   ) : (
-                    <Badge variant="secondary">No Expiration</Badge>
+                    <Badge variant="secondary">Never</Badge>
                   )}
                 </TableCell>
                 <TableCell>
