@@ -2,6 +2,7 @@
 
 import { LogoutButton } from "@/components/logout-button";
 import { Menu } from "@/components/menu";
+import { Toaster } from "@/components/ui/toaster";
 import { useState } from "react";
 
 export default function DashboardLayout({
@@ -76,6 +77,7 @@ export default function DashboardLayout({
           © 2024 Haomin
         </p>
       </footer>
+      <Toaster />
     </div>
   );
 }

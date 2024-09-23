@@ -13,12 +13,15 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { shortenUrl } from "@/lib/server-actions";
+import { toast } from "@/hooks/use-toast";
 
 export function ShortenerPanel() {
   const [url, setUrl] = useState("");
   const [shortCode, setShortCode] = useState("");
   const [expirationDate, setExpirationDate] = useState<Date>();
   const [description, setDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const generateRandomShortCode = () => {
     const characters =
@@ -32,10 +35,39 @@ export function ShortenerPanel() {
     setShortCode(result);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log({ url, shortCode, expirationDate, description });
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append('url', url);
+    formData.append('shortCode', shortCode);
+    formData.append('expirationDate', expirationDate?.toISOString() ?? '');
+    formData.append('description', description);
+
+    const result = await shortenUrl(formData);
+
+    setIsLoading(false);
+
+    if (!result.success) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: result.message,
+      })
+    } else {
+      // Handle success (e.g., show success message, clear form)
+      console.log('URL shortened successfully:', result.shortUrl);
+      toast({
+        title: "Success!",
+        description: "The short pair is created.",
+      })
+      // Clear the form
+      setUrl('');
+      setShortCode('');
+      setExpirationDate(undefined);
+      setDescription('');
+    }
   };
 
   return (
@@ -114,8 +146,8 @@ export function ShortenerPanel() {
       </div>
 
       <div className="grid grid-cols-3">
-        <Button type="submit" className="col-start-3 col-span-1">
-          Create
+        <Button type="submit" className="col-start-3 col-span-1" disabled={isLoading}>
+          {isLoading ? 'Creating...' : 'Create'}
         </Button>
       </div>
     </form>
