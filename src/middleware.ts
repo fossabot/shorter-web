@@ -54,15 +54,10 @@ export async function middleware(request: NextRequest) {
   //   request.nextUrl.pathname.startsWith(route)
   // );
 
-  // if (!isLoggedIn && !isPublicRoute) {
-  //   // Redirect to login if not authenticated and trying to access a protected route
-  //   return NextResponse.redirect(new URL("/login", request.url));
-  // }
-
-  // if (isLoggedIn && isPublicRoute) {
-  //   // Redirect to dashboard if already authenticated and trying to access a public route
-  //   return NextResponse.redirect(new URL("/dashboard", request.url));
-  // }
+  if (!isLoggedIn) {
+    // Redirect to login if not authenticated and trying to access a protected route
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
   // Continue with the request if everything is fine
   return NextResponse.next();
