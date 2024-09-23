@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from 'next/server';
 
 type ShortenRequest = {
   originalUrl: string;
@@ -47,7 +48,7 @@ export async function shortenUrl(formData: FormData) {
 
   const expirationDate = formData.get("expirationDate") as string;
   if (expirationDate) {
-    if (isNaN(Date.parse(expirationDate))) {
+    if (Number.isNaN(Date.parse(expirationDate))) {
       return { success: false, message: "Invalid expiration date" } as ShortenResponse;
     }
 
@@ -89,5 +90,72 @@ export async function shortenUrl(formData: FormData) {
     } else {
       return { success: false, message: "An unknown error occurred" } as ShortenResponse;
     }
+  }
+}
+
+type AuthResponse = {
+  success: boolean;
+  url_shortener_gh_session: string;
+  message?: string;
+};
+
+export type AuthenticateUserResult = {
+  success: boolean;
+  message?: string;
+}
+
+async function sendRequest(code: string) {
+  return fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/callback`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ code }),
+  });
+}
+
+// New Server Action to handle authentication
+export async function authenticateUser(code: string) {  
+  try {
+    const response = await sendRequest(code);
+    const data: AuthResponse = await response.json();
+    console.log("Authentication response:", data);
+
+    if (data.success) {
+      console.log("Authentication successful. Setting cookie and redirecting to dashboard...");
+      
+      // Set the cookie
+      cookies().set('url_shortener_gh_session', data.url_shortener_gh_session, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+      });
+
+      return { success: true, message: "Authentication successful" } as AuthenticateUserResult;
+    } else {
+      console.log("Authentication failed. ", data.message);
+      return { success: false, message: data.message || "Authentication failed" } as AuthenticateUserResult;
+    }
+  } catch (error: unknown) {
+    console.error("Error during authentication:", error);
+    return { success: false, message: "Authentication failed" } as AuthenticateUserResult;
+  }
+}
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const code = searchParams.get('code') || "";
+
+  if (!code) {
+    console.log("No code found. Redirecting to login...");
+    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_BASE_URL));
+  }
+
+  const result = await authenticateUser(code);
+
+  if (result.success) {
+    return NextResponse.redirect(new URL("/dashboard", process.env.NEXT_PUBLIC_BASE_URL));
+  } else {
+    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_BASE_URL));
   }
 }
