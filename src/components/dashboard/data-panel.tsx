@@ -31,7 +31,6 @@ export const DataPanel = () => {
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
           {message || "An error occurred while fetching the data."}
-          <Button onClick={() => mutate()}>Try again</Button>
         </AlertDescription>
       </Alert>
     );
