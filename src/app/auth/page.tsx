@@ -5,50 +5,16 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { authenticateUser, AuthenticateUserResult } from "@/lib/server-actions";
 
 
-export function AuthCallbackPage() {
+function PageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [loginResult, setLoginResult] = useState<AuthenticateUserResult>();
   const code = searchParams.get("code");
-
-  // useEffect(() => {
-  //   const getResult = async () => {
-  //     try {
-  //       if (code) {
-  //         const authResult = await authenticateUser(code);
-  //         setLoginResult(authResult);
-          // if (authResult.success) {
-          //   // Redirect to dashboard after a short delay
-          //   setTimeout(() => {
-          //     router.push("/dashboard");
-          //   }, 1000);
-  //         }
-  //       } else {
-  //         setLoginResult({
-  //           success: false,
-  //           message: "No authentication code provided",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error during authentication:", error);
-  //       setLoginResult({
-  //         success: false,
-  //         message: "An error occurred during authentication",
-  //       });
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   if (loading) {
-  //     getResult();
-  //   }
-  // }, [code, loading, router]);
 
   const performAuthentication = useCallback(async () => {
     if (!code) {
@@ -126,4 +92,12 @@ export function AuthCallbackPage() {
   );
 }
 
-export default AuthCallbackPage;
+const AuthPage = () => {
+  return (
+    <Suspense>
+      <PageContent />
+    </Suspense>
+  )
+}
+
+export default AuthPage;
