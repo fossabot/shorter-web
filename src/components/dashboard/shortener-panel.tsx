@@ -50,11 +50,12 @@ export function ShortenerPanel() {
     setIsLoading(false);
 
     if (!result.success) {
+      console.log('URL shortened failed:', result.message);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: result.message,
-      })
+      });
     } else {
       // Handle success (e.g., show success message, clear form)
       console.log('URL shortened successfully:', result.shortUrl);

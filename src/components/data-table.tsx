@@ -52,7 +52,7 @@ export function DataTable(props: DataTableProps) {
               >
                 <TableCell>
                   <Link href={`${process.env.NEXT_PUBLIC_API_URL}/${item.shortCode}`} passHref target="_blank" rel="noopener noreferrer">
-                    <a className="text-blue-600 hover:underline">{item.shortCode}</a>
+                    {item.shortCode}
                   </Link>
                 </TableCell>
                 <TableCell>

@@ -124,6 +124,11 @@ export async function authenticateUser(code: string) {
     console.log("Session already exists, skipping authentication");
     return { success: true, message: "Already authenticated" };
   }
+
+  if(!code) {
+    console.log("no code provided.")
+    return {success: false, message: "no code provided callback"} as AuthenticateUserResult;
+  }
   
   try {
     const response = await sendRequest(code);

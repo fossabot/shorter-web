@@ -12,7 +12,7 @@ export function LogoutButton() {
   }
 
   return (
-    <Button variant="ghost" onClick={handleLogout}>
+    <Button variant="secondary" onClick={handleLogout}>
       Logout
     </Button>
   )
