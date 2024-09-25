@@ -1,23 +1,24 @@
+import { ListAllResponse } from "@/lib/types";
 import useSWR from "swr";
 
-type KVPair = {
-  shortCode: string;
-  originalUrl: string;
-  expiration?: number; // Unix timestamp
-  description?: string;
-};
-
-type ListAllResponse = {
-  success: boolean;
-  message?: string;
-  data?: KVPair[];
-};
+const fetcher = (url: string) => fetch(url, { 
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json',
+  }
+}).then(async (res) => {
+  if (!res.ok) {
+    const errorBody = await res.text();
+    console.error(`HTTP error! status: ${res.status}, body: ${errorBody}`);
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+  return res.json();
+});
 
 export function useAllLinks() {
-  const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
   const { data, error, isLoading, mutate } = useSWR<ListAllResponse>(
-    "/api/api/dashboard/all",
+    "/dashboard/all",
     fetcher
   );
 
