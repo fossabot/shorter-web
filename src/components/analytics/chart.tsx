@@ -1,13 +1,11 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -19,72 +17,98 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { useState, useEffect } from "react";
 
-export const description = "A stacked bar chart with a legend"
+// Define the structure of the API response
+interface AnalyticsResponseType {
+  success: boolean;
+  urlId: string;
+  shortCodes: {
+    [key: string]: Array<{ date: string; count: number }>;
+  };
+  totalClicks: number;
+}
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214 },
-]
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
-  },
-} satisfies ChartConfig
+// Define the structure for the chart data
+interface ChartDataPoint {
+  date: string;
+  [shortCode: string]: number | string;
+}
 
 export function ClickChart() {
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+
+  useEffect(() => {
+    // Fetch data from your API
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/api/analytics/sBKMRN-6GLoFDGepFwauF');
+        const data: AnalyticsResponseType = await response.json();
+
+        if (data.success) {
+          const transformedData: ChartDataPoint[] = [];
+          const config: ChartConfig = {};
+
+          // Transform the data for the chart
+          Object.entries(data.shortCodes).forEach(([shortCode, clicks], index) => {
+            clicks.forEach(({ date, count }) => {
+              const existingDataPoint = transformedData.find(point => point.date === date);
+              if (existingDataPoint) {
+                existingDataPoint[shortCode] = count;
+              } else {
+                transformedData.push({ date, [shortCode]: count });
+              }
+            });
+
+            // Create config for each short code
+            config[shortCode] = {
+              label: `Short Code ${shortCode}`,
+              color: `hsl(var(--chart-${index + 1}))`,
+            };
+          });
+
+          setChartData(transformedData);
+          setChartConfig(config);
+        }
+      } catch (error) {
+        console.error('Error fetching analytics data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Stacked + Legend</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Click Analytics</CardTitle>
+        <CardDescription>Click distribution by short code</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart width={600} height={300} data={chartData}>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="date"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <ChartLegend content={<ChartLegendContent />} />
-            <Bar
-              dataKey="desktop"
-              stackId="a"
-              fill="var(--color-desktop)"
-              radius={[0, 0, 4, 4]}
-            />
-            <Bar
-              dataKey="mobile"
-              stackId="a"
-              fill="var(--color-mobile)"
-              radius={[4, 4, 0, 0]}
-            />
+            {Object.keys(chartConfig).map((shortCode, index) => (
+              <Bar
+                key={shortCode}
+                dataKey={shortCode}
+                stackId="a"
+                fill={`var(--color-${shortCode})`}
+                radius={[index === 0 ? 4 : 0, index === 0 ? 4 : 0, index === Object.keys(chartConfig).length - 1 ? 4 : 0, index === Object.keys(chartConfig).length - 1 ? 4 : 0]}
+              />
+            ))}
           </BarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div>
-      </CardFooter>
     </Card>
-  )
+  );
 }

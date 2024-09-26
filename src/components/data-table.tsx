@@ -100,7 +100,7 @@ export function DataTable(props: DataTableProps) {
                       </Button>
                     </Link>
                     <Link
-                      href={`/dashboard/analytics/${item.shortCode}`}
+                      href={`/dashboard/analytics/${item.urlId}`}
                       passHref
                     >
                       <Button variant="outline" size="sm">

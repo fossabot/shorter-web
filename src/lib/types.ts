@@ -3,6 +3,7 @@ export type KVPair = {
   originalUrl: string;
   expiration?: number; // Unix timestamp
   description?: string;
+  urlId: string;
 };
 
 export type ListAllResponse = {
