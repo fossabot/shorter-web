@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
 import {
   Card,
@@ -8,7 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -16,8 +16,10 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 import { useAnalyticsData } from "@/hooks/use-data";
+import { ErrorAlert, LoadingSkeleton, NoDataDisplay } from "../data-handling";
+import { useMemo } from "react";
 
 // Define the structure for the chart data
 interface ChartDataPoint {
@@ -26,37 +28,45 @@ interface ChartDataPoint {
 }
 
 export function ClickChart({ urlId }: { urlId: string }) {
-  const { data, isError, isLoading, isSuccess } = useAnalyticsData(urlId);
+  const { data, isError, isLoading } = useAnalyticsData(urlId);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error: {isError.message}</div>;
-  if (!data || !isSuccess) return <div>No data available</div>;
+  const { chartData, chartConfig } = useMemo(() => {
+    if (!data || Object.keys(data.shortCodes).length === 0) {
+      return { chartData: [], chartConfig: {} };
+    }
 
-  const chartData: ChartDataPoint[] = [];
-  const chartConfig: ChartConfig = {};
+    const chartData: ChartDataPoint[] = [];
+    const chartConfig: ChartConfig = {};
 
-  Object.entries(data.shortCodes).forEach(([shortCode, clicks], index) => {
-    clicks.forEach(({ date, count }) => {
-      const existingDataPoint = chartData.find(point => point.date === date);
-      if (existingDataPoint) {
-        existingDataPoint[shortCode] = count;
-      } else {
-        chartData.push({ date, [shortCode]: count });
-      }
+    Object.entries(data.shortCodes).forEach(([shortCode, clicks], index) => {
+      clicks.forEach(({ date, count }) => {
+        const existingDataPoint = chartData.find((point) => point.date === date);
+        if (existingDataPoint) {
+          existingDataPoint[shortCode] = count;
+        } else {
+          chartData.push({ date, [shortCode]: count });
+        }
+      });
+
+      chartConfig[shortCode] = {
+        label: `Short Code ${shortCode}`,
+        color: `hsl(var(--chart-${index + 1}))`,
+      };
     });
 
-    chartConfig[shortCode] = {
-      label: `Short Code ${shortCode}`,
-      color: `hsl(var(--chart-${index + 1}))`,
-    };
-  });
+    return { chartData, chartConfig };
+  }, [data]);
 
-  
+  if (isLoading) return <LoadingSkeleton />;
+  if (isError) return <ErrorAlert message={isError?.message} />;
+  if (chartData.length === 0)
+    return <NoDataDisplay title={"Click History for Url Id:" + urlId} />;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Click Analytics for {urlId}</CardTitle>
-        <CardDescription>Click distribution by short code</CardDescription>
+        <CardDescription>Click distribution by short code for the recent 30 days</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -76,7 +86,12 @@ export function ClickChart({ urlId }: { urlId: string }) {
                 dataKey={shortCode}
                 stackId="a"
                 fill={`var(--color-${shortCode})`}
-                radius={[index === 0 ? 4 : 0, index === 0 ? 4 : 0, index === Object.keys(chartConfig).length - 1 ? 4 : 0, index === Object.keys(chartConfig).length - 1 ? 4 : 0]}
+                radius={[
+                  index === 0 ? 4 : 0,
+                  index === 0 ? 4 : 0,
+                  index === Object.keys(chartConfig).length - 1 ? 4 : 0,
+                  index === Object.keys(chartConfig).length - 1 ? 4 : 0,
+                ]}
               />
             ))}
           </BarChart>
