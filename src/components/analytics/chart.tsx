@@ -17,17 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { useState, useEffect } from "react";
-
-// Define the structure of the API response
-interface AnalyticsResponseType {
-  success: boolean;
-  urlId: string;
-  shortCodes: {
-    [key: string]: Array<{ date: string; count: number }>;
-  };
-  totalClicks: number;
-}
+import { useAnalyticsData } from "@/hooks/use-data";
 
 // Define the structure for the chart data
 interface ChartDataPoint {
@@ -35,54 +25,37 @@ interface ChartDataPoint {
   [shortCode: string]: number | string;
 }
 
-export function ClickChart() {
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
-  const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+export function ClickChart({ urlId }: { urlId: string }) {
+  const { data, isError, isLoading, isSuccess } = useAnalyticsData(urlId);
 
-  useEffect(() => {
-    // Fetch data from your API
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/api/analytics/sBKMRN-6GLoFDGepFwauF');
-        const data: AnalyticsResponseType = await response.json();
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error: {isError.message}</div>;
+  if (!data || !isSuccess) return <div>No data available</div>;
 
-        if (data.success) {
-          const transformedData: ChartDataPoint[] = [];
-          const config: ChartConfig = {};
+  const chartData: ChartDataPoint[] = [];
+  const chartConfig: ChartConfig = {};
 
-          // Transform the data for the chart
-          Object.entries(data.shortCodes).forEach(([shortCode, clicks], index) => {
-            clicks.forEach(({ date, count }) => {
-              const existingDataPoint = transformedData.find(point => point.date === date);
-              if (existingDataPoint) {
-                existingDataPoint[shortCode] = count;
-              } else {
-                transformedData.push({ date, [shortCode]: count });
-              }
-            });
-
-            // Create config for each short code
-            config[shortCode] = {
-              label: `Short Code ${shortCode}`,
-              color: `hsl(var(--chart-${index + 1}))`,
-            };
-          });
-
-          setChartData(transformedData);
-          setChartConfig(config);
-        }
-      } catch (error) {
-        console.error('Error fetching analytics data:', error);
+  Object.entries(data.shortCodes).forEach(([shortCode, clicks], index) => {
+    clicks.forEach(({ date, count }) => {
+      const existingDataPoint = chartData.find(point => point.date === date);
+      if (existingDataPoint) {
+        existingDataPoint[shortCode] = count;
+      } else {
+        chartData.push({ date, [shortCode]: count });
       }
-    };
+    });
 
-    fetchData();
-  }, []);
+    chartConfig[shortCode] = {
+      label: `Short Code ${shortCode}`,
+      color: `hsl(var(--chart-${index + 1}))`,
+    };
+  });
+
   
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Click Analytics</CardTitle>
+        <CardTitle>Click Analytics for {urlId}</CardTitle>
         <CardDescription>Click distribution by short code</CardDescription>
       </CardHeader>
       <CardContent>
