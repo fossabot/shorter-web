@@ -21,6 +21,7 @@ import { Button } from "./ui/button";
 import { Settings, ChartColumn } from "lucide-react";
 import { KVPair } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import CopyButton from "./copy-button";
 
 type DataTableProps = {
   data: KVPair[];
@@ -51,9 +52,7 @@ export function DataTable(props: DataTableProps) {
                 className={isExpired ? "opacity-50" : ""}
               >
                 <TableCell>
-                  <Link href={`${process.env.NEXT_PUBLIC_API_URL}/${item.shortCode}`} passHref target="_blank" rel="noopener noreferrer">
-                    {item.shortCode}
-                  </Link>
+                  <CopyButton text={item.shortCode} textToCopy={"process.env.NEXT_PUBLIC_API_URL"+item.shortCode} />
                 </TableCell>
                 <TableCell>
                   <TooltipProvider>

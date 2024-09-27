@@ -65,7 +65,7 @@ export function ClickChart({ urlId }: { urlId: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Click Analytics for {urlId}</CardTitle>
+        <CardTitle>Click History</CardTitle>
         <CardDescription>Click distribution by short code for the recent 30 days</CardDescription>
       </CardHeader>
       <CardContent>

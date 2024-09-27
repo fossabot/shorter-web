@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Check, Copy, X } from "lucide-react"
 
 interface CopyButtonProps {
-  textToCopy: string
-  onCopySuccess?: () => void
-  onCopyError?: () => void
+  textToCopy: string;
+  onCopySuccess?: () => void;
+  onCopyError?: () => void;
+  text?: string;
 }
 
-export default function CopyButton({ textToCopy, onCopySuccess, onCopyError }: CopyButtonProps) {
+export default function CopyButton({ textToCopy, onCopySuccess, onCopyError, text }: CopyButtonProps) {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   const copyToClipboard = useCallback(async () => {
@@ -41,13 +42,13 @@ export default function CopyButton({ textToCopy, onCopySuccess, onCopyError }: C
   const getButtonContent = () => {
     switch (status) {
       case 'success':
-        return <Check className="h-4 w-4" />
+        return (<><Check className="h-4 w-4 mr-2" /> Copied!</>)
       case 'error':
-        return <X className="h-4 w-4" />
+        return (<><X className="h-4 w-4 mr-2" /> Error</>)
       default:
         return (
           <>
-            <Copy className="mr-2 h-4 w-4" /> Copy
+            <Copy className="mr-2 h-4 w-4" /> {text || "Copy"}
           </>
         )
     }

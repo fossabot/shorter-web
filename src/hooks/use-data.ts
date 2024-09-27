@@ -1,13 +1,15 @@
-import { AnalyticsResponseType, getAnalytics } from "@/lib/server-actions";
-import { ListAllResponse } from "@/lib/types";
-import useSWR from "swr";
+import { getAnalytics } from "@/lib/server-actions";
+import { AnalyticsOverviewResponse, AnalyticsResponseType, ListAllResponse } from "@/lib/types";
+import useSWR from 'swr'
 
-const fetcher = (url: string) =>
+
+const fetcher = (url: string, init?: RequestInit) =>
   fetch(url, {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
+    ...init
   }).then(async (res) => {
     if (!res.ok) {
       const errorBody = await res.text();
@@ -48,5 +50,19 @@ export function useAnalyticsData(urlId: string) {
     isLoading,
     isError: error,
     mutate,
+  };
+}
+
+export function useAnalyticsOverviewData() {
+  const {data, isLoading, error} = useSWR<AnalyticsOverviewResponse> (
+    "/api/api/analytics/overview",
+    fetcher
+  );
+
+  return {
+    data,
+    isSuccess: data?.success,
+    isLoading,
+    isError: error,
   };
 }

@@ -2,20 +2,7 @@
 
 import { cookies } from "next/headers";
 import { cache } from "react";
-
-type ShortenRequest = {
-  originalUrl: string;
-  shortCode?: string;
-  expiration?: number; // Unix timestamp
-  description?: string;
-};
-
-type ShortenResponse = {
-  shortUrl: string;
-  originalUrl?: string;
-  success?: boolean;
-  message?: string; // used for error
-};
+import { ShortenResponse, ShortenRequest, AuthenticateUserResult, AuthResponse, AnalyticsResponseType } from "./types";
 
 export async function shortenUrl(formData: FormData) {
   const cookieStore = cookies();
@@ -97,17 +84,6 @@ export async function shortenUrl(formData: FormData) {
   }
 }
 
-type AuthResponse = {
-  success: boolean;
-  url_shortener_gh_session: string;
-  message?: string;
-};
-
-export type AuthenticateUserResult = {
-  success: boolean;
-  message?: string;
-};
-
 async function sendRequest(code: string) {
   console.log("Server-actions sendRequest to /auth/callback, code is", code);
   return fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/callback`, {
@@ -173,14 +149,6 @@ export async function authenticateUser(code: string) {
   }
 }
 
-export interface AnalyticsResponseType {
-  success: boolean;
-  urlId: string;
-  shortCodes: {
-    [key: string]: Array<{ date: string; count: number }>;
-  };
-  totalClicks: number;
-}
 
 export const getAnalytics = cache(
   async (urlId: string): Promise<AnalyticsResponseType> => {
@@ -192,7 +160,7 @@ export const getAnalytics = cache(
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/${urlId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/url/${urlId}`,
       {
         headers: {
           Cookie: `url_shortener_gh_session=${sessionId.value}`,
