@@ -6,7 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { authenticateUser, AuthenticateUserResult } from "@/lib/server-actions";
+import { authenticateUser } from "@/lib/server-actions";
+import { AuthenticateUserResult } from "@/lib/types";
 
 
 function PageContent() {
