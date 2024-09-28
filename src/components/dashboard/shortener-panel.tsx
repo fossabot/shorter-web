@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { shortenUrl } from "@/lib/server-actions";
 import { toast } from "@/hooks/use-toast";
+import CopyButton from "../copy-button";
 
 export function ShortenerPanel() {
   const [url, setUrl] = useState("");
@@ -50,17 +51,21 @@ export function ShortenerPanel() {
     setIsLoading(false);
 
     if (!result.success) {
+      console.log('URL shortened failed:', result.message);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
         description: result.message,
-      })
+      });
     } else {
       // Handle success (e.g., show success message, clear form)
       console.log('URL shortened successfully:', result.shortUrl);
       toast({
         title: "Success!",
         description: "The short pair is created.",
+        action: (
+          <CopyButton textToCopy={result.shortUrl}/>
+        ),
       })
       // Clear the form
       setUrl('');

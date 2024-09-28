@@ -1,5 +1,5 @@
 
-export const Page = ({ params }: { params: { codeId: string } }) => {
+const CodeManagementPage = ({ params }: { params: { codeId: string } }) => {
   const id = params.codeId;
 
   return (
@@ -10,4 +10,4 @@ export const Page = ({ params }: { params: { codeId: string } }) => {
   );
 }
 
-export default Page;
+export default CodeManagementPage;

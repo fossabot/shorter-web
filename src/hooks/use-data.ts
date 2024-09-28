@@ -1,23 +1,29 @@
-import useSWR from "swr";
+import { getAnalytics } from "@/lib/server-actions";
+import { AnalyticsOverviewResponse, AnalyticsResponseType, ListAllResponse } from "@/lib/types";
+import useSWR from 'swr'
 
-type KVPair = {
-  shortCode: string;
-  originalUrl: string;
-  expiration?: number; // Unix timestamp
-  description?: string;
-};
 
-type ListAllResponse = {
-  success: boolean;
-  message?: string;
-  data?: KVPair[];
-};
+const fetcher = (url: string, init?: RequestInit) =>
+  fetch(url, {
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    ...init
+  }).then(async (res) => {
+    if (!res.ok) {
+      const errorBody = await res.text();
+      console.error(
+        `fetcher HTTP error! status: ${res.status}, body: ${errorBody}`
+      );
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    return res.json();
+  });
 
 export function useAllLinks() {
-  const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
   const { data, error, isLoading, mutate } = useSWR<ListAllResponse>(
-    "/api/api/dashboard/all",
+    "/dashboard/all",
     fetcher
   );
 
@@ -28,5 +34,35 @@ export function useAllLinks() {
     isError: error,
     message: data?.message,
     mutate,
+  };
+}
+
+export function useAnalyticsData(urlId: string) {
+  const { data, isLoading, mutate, error } = useSWR<AnalyticsResponseType>(
+    urlId, 
+    () => getAnalytics(urlId),
+    { refreshInterval: 3000 }
+  );
+
+  return {
+    data,
+    isSuccess: data?.success,
+    isLoading,
+    isError: error,
+    mutate,
+  };
+}
+
+export function useAnalyticsOverviewData() {
+  const {data, isLoading, error} = useSWR<AnalyticsOverviewResponse> (
+    "/api/api/analytics/overview",
+    fetcher
+  );
+
+  return {
+    data,
+    isSuccess: data?.success,
+    isLoading,
+    isError: error,
   };
 }

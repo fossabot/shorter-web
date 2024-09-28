@@ -19,33 +19,32 @@ To read more about using these font, please visit the Next.js documentation:
 **/
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Github } from "lucide-react";
 import Link from "next/link";
 export default function LoginPage() {
   return (
-    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-md space-y-6 text-center">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Welcome Back
-          </h1>
-          <p className="text-muted-foreground">
-            Sign in to your account to continue
-          </p>
-        </div>
-        <div className="grid gap-2">
-          <Link
-            // href={`https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}`}
-            href={`https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_REDIRECT_URI}`}
-            // target="_blank"
-          >
-            <Button variant="outline" className="w-full">
-              <Github className="mr-2 h-5 w-5" />
-              Sign in with GitHub
-            </Button>
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-6">
+          <div className="text-center">
+            <h1 className="mt-4 mb-8 text-4xl font-semibold text-success">
+              Welcome Back
+            </h1>
+            <p className="text-muted-foreground">
+              Login to continue
+            </p>
+            <Link
+              href={`https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.GITHUB_REDIRECT_URI}`}
+            >
+              <Button className="mt-4" variant="secondary">
+                <Github className="mr-2 h-5 w-5" />
+                Sign in with Github
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

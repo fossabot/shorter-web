@@ -44,24 +44,19 @@ async function checkAuthStatus(request: NextRequest) {
 export async function middleware(request: NextRequest) {
   const isLoggedIn = await checkAuthStatus(request);
 
-  console.log("Is logged in:", isLoggedIn);
+  console.log("Middleware: user is logged in:", isLoggedIn);
 
-  // List of public routes that don't require authentication
-  const publicRoutes = ["/login", "/auth/callback"];
+  // // List of public routes that don't require authentication
+  // const publicRoutes = ["/login", "/auth/callback"];
 
-  // Check if the requested path is a public route
-  const isPublicRoute = publicRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route)
-  );
+  // // Check if the requested path is a public route
+  // const isPublicRoute = publicRoutes.some((route) =>
+  //   request.nextUrl.pathname.startsWith(route)
+  // );
 
-  if (!isLoggedIn && !isPublicRoute) {
+  if (!isLoggedIn) {
     // Redirect to login if not authenticated and trying to access a protected route
     return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (isLoggedIn && isPublicRoute) {
-    // Redirect to dashboard if already authenticated and trying to access a public route
-    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Continue with the request if everything is fine

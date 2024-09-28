@@ -2,11 +2,12 @@
 
 import { DataTable, DataTableSkeleton } from "@/components/data-table";
 import { useAllLinks } from "@/hooks/use-data";
-import { AlertTriangleIcon, RotateCw } from "lucide-react";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "../ui/input";
 import { useState } from "react";
+import { ErrorAlert, NoDataDisplay } from "../data-handling";
+
 
 export const DataPanel = () => {
   const { links, isLoading, isError, message, mutate } = useAllLinks();
@@ -26,25 +27,12 @@ export const DataPanel = () => {
 
   if (isError) {
     return (
-      <Alert variant="destructive">
-        <AlertTriangleIcon className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>
-          {message || "An error occurred while fetching the data."}
-        </AlertDescription>
-      </Alert>
+      <ErrorAlert message={message} />
     );
   }
 
   if (links.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-semibold mb-4">No links found</h2>
-        <p className="text-muted-foreground mb-6">
-          It looks like you haven&apos;t created any short links yet.
-        </p>
-      </div>
-    );
+    return <NoDataDisplay title="links"/>
   }
 
   return (
